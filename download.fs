@@ -1,7 +1,7 @@
+module RZ.App.Download
+
 open System
 open System.IO
-
-#load "net.fs"
 
 module Video =
   type VideoInfo =
@@ -81,16 +81,3 @@ module Twitter =
 
         Directory.SetCurrentDirectory currentDir
         Directory.Delete(temp, true)
-
-#if INTERACTIVE
-
-let twitterUri = Uri(Environment.GetCommandLineArgs().[2])
-let targetFilePath = Environment.GetCommandLineArgs().[3]
-
-let currentDir = Directory.GetCurrentDirectory()
-
-Twitter.downloadVideo(twitterUri, Path.Combine(currentDir, targetFilePath))
-
-printfn "Done."
-
-#endif
