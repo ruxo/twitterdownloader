@@ -1,6 +1,4 @@
-#r "System.Web.dll"
-#r "packages/Newtonsoft.Json/lib/net45/Newtonsoft.Json.dll"
-#load "net.fs"
+module RZ.App.VideoPlaylist
 
 open System
 
