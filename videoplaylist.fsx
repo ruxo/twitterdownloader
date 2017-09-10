@@ -1,10 +1,12 @@
 #r "System.Web.dll"
+#r "packages/Newtonsoft.Json/lib/net45/Newtonsoft.Json.dll"
 #load "net.fs"
 
 open System
 
 module Twitter =
     open System.Text.RegularExpressions
+    open Newtonsoft.Json.Linq
 
     let private VideoPlaylistUri tid = sprintf "https://twitter.com/i/videos/tweet/%s" tid
 
@@ -16,7 +18,11 @@ module Twitter =
 
             assert m.Success
 
-            m.Groups.[1].Value |> System.Web.HttpUtility.HtmlDecode
+            let dataconfigText = m.Groups.[1].Value |> System.Web.HttpUtility.HtmlDecode
+
+            let dataconfig = JObject.Parse dataconfigText
+
+            dataconfig.["video_url"].ToString()
 
         let playlist = tid |> VideoPlaylistUri |> Uri |> RZ.Net.readHttpText
 
