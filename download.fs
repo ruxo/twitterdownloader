@@ -51,7 +51,12 @@ module Twitter =
         let bestResolution = videoSelector |> Seq.maxBy Video.VideoInfo.bandwidth
         let videoFile = Uri(twitterUri, bestResolution.Path)
 
-        printfn "Loading...%A" videoFile
+        let currentColor = Console.ForegroundColor
+        printf "Best resolution "
+        Console.ForegroundColor <- ConsoleColor.Yellow
+        printfn "%A" bestResolution.Resolution
+
+        Console.ForegroundColor <- currentColor
 
         let temp = Path.GetTempFileName()
         printfn "Temp at %s" temp
