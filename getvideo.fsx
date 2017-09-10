@@ -11,12 +11,24 @@ open System.IO
 open RZ.App.VideoPlaylist
 open RZ.App.Download
 
-let twitterId = Environment.GetCommandLineArgs().[2]
+let args = Environment.GetCommandLineArgs()
+let currentDir = Directory.GetCurrentDirectory()
 
-let targetFilePath = Path.Combine(Directory.GetCurrentDirectory(), sprintf "%s.mp4" twitterId)
+let twitterId = if args.Length > 2 then args.[2] else null
 
-let playlist = Twitter.getVideoPlaylist twitterId
+let download tid =
+  let targetFilePath = Path.Combine(currentDir, sprintf "%s.mp4" tid)
+  let playlist = Twitter.getVideoPlaylist tid
+  Twitter.downloadVideo(Uri playlist, targetFilePath)
 
-printfn "Playlist at %s" playlist
+let promptTwitterId() =
+  printf "Input Twitter ID: "
+  Console.ReadLine()
 
-Twitter.downloadVideo(Uri playlist, targetFilePath)
+if String.IsNullOrEmpty twitterId then
+  let mutable tid = promptTwitterId()
+  while not <| String.IsNullOrEmpty tid do
+    download tid
+    tid <- promptTwitterId()
+else
+  download twitterId
