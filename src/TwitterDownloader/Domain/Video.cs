@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using RZ.Foundation.Extensions;
 using RZ.Foundation.Types;
@@ -20,11 +21,11 @@ namespace RZ.App.TwitterDownloader.Domain
 
     public static class Video
     {
-        public static Iter<VideoInfo> ParseVideoSelector(Iter<string> m3u8Content) =>
-            Iter(m3u8Content.Where(s => s.Length > 0 && (s[0] == '/' || s.StartsWith("#EXT-X-STREAM-INF")))
+        public static IEnumerable<VideoInfo> ParseVideoSelector(IEnumerable<string> m3u8Content) =>
+            m3u8Content.Where(s => s.Length > 0 && (s[0] == '/' || s.StartsWith("#EXT-X-STREAM-INF")))
                 .Batch(2)
                 .Select(i => Array2Pair(i.ToArray()))
-                .Select(pairs => ToVideoInfo(pairs.Item1, pairs.Item2)));
+                .Select(pairs => ToVideoInfo(pairs.Item1, pairs.Item2));
 
         static VideoInfo ToVideoInfo(string streamInfo, string path) {
             var info = ExtractInfo(streamInfo);

@@ -40,7 +40,7 @@
     string errorMessage;
     bool saving;
 
-    bool InvalidForm => string.IsNullOrWhiteSpace(targetFilename);
+    bool InvalidForm => string.IsNullOrWhiteSpace(defaultSaveLocation) ||  string.IsNullOrWhiteSpace(m3u8Uri) || string.IsNullOrWhiteSpace(targetFilename);
 
     protected override void OnInitialized() {
         defaultSaveLocation = Settings.DefaultSaveLocation;
@@ -51,7 +51,7 @@
         saving = true;
         Twitter.DownloadVideo(Settings.FFMpegPath, m3u8Uri, Path.Combine(defaultSaveLocation, targetFilename))
             .ContinueWith(t => {
-                successMessage = t.IsCompletedSuccessfully ? "Saved!" : null;
+                successMessage = !t.IsCompletedSuccessfully ? null : t.Result.Get(v => $"Saved! Resolution {v.Resolution.Horz}x{v.Resolution.Vert} was selected.", () => "Saved.");
                 errorMessage = t.Exception != null ? t.Exception.ToString() : null;
                 saving = false;
                 InvokeAsync(StateHasChanged);
