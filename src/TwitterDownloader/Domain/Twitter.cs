@@ -8,6 +8,7 @@ using Flurl;
 using Flurl.Http;
 using RZ.App.TwitterDownloader.Extensions;
 using RZ.Foundation;
+using static RZ.Foundation.Prelude;
 
 namespace RZ.App.TwitterDownloader.Domain
 {
@@ -48,7 +49,7 @@ namespace RZ.App.TwitterDownloader.Domain
             var twitterVideoRoot = m3u8Uri.ResetToRoot();
             var videoContent = await ReadM3u8File(m3u8Uri);
 
-            var videoInfos = Video.ParseVideoSelector(videoContent).ToArray();
+            var videoInfos = Video.ParseVideoSelector(Iter(videoContent)).ToArray();
             var selectedVideo = videoInfos.MaxBy(v => v.Bandwidth);
 
             videoContent = await selectedVideo.GetAsync(async selected => await ReadM3u8File(twitterVideoRoot.Clone().AppendPathSegment(selected.Path)),
