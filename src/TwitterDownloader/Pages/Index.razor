@@ -1,0 +1,60 @@
+﻿@page "/"
+
+@using System.IO
+@using RZ.App.TwitterDownloader.Domain
+
+@inject AppSettings Settings
+
+<h2>Settings</h2>
+<div>ffmpeg path: @Settings.FFMpegPath</div>
+
+<form>
+    <fieldset disabled="@saving">
+        <div>
+            <span>Target location</span>
+            <input type="text" class="form-control" @bind="defaultSaveLocation" />
+        </div>
+        <div>
+            <span>M3U8 URI</span>
+            <input type="text" class="form-control" @bind="m3u8Uri" />
+        </div>
+        <div>
+            <span>Target file name</span>
+            <input type="text" class="form-control" @bind-value="targetFilename" @bind-value:event="oninput" />
+        </div>
+        <button type="button" class="btn btn-info" @onclick="OnSave" disabled="@InvalidForm">Save</button>
+    </fieldset>
+    @if (!string.IsNullOrEmpty(successMessage)) {
+        <div class="alert alert-success">@successMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(errorMessage)) {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+</form>
+
+@code {
+    string defaultSaveLocation;
+    string m3u8Uri;
+    string targetFilename;
+    string successMessage;
+    string errorMessage;
+    bool saving;
+
+    bool InvalidForm => string.IsNullOrWhiteSpace(targetFilename);
+
+    protected override void OnInitialized() {
+        defaultSaveLocation = Settings.DefaultSaveLocation;
+    }
+
+    void OnSave() {
+        successMessage = errorMessage = null;
+        saving = true;
+        Twitter.DownloadVideo(Settings.FFMpegPath, m3u8Uri, Path.Combine(defaultSaveLocation, targetFilename))
+            .ContinueWith(t => {
+                successMessage = t.IsCompletedSuccessfully ? "Saved!" : null;
+                errorMessage = t.Exception != null ? t.Exception.ToString() : null;
+                saving = false;
+                InvokeAsync(StateHasChanged);
+            });
+    }
+}
